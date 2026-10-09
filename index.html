@@ -139,6 +139,24 @@
   }
   .no:hover { background: #e5e7eb; }
 
+  .music-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--pink);
+    font-size: 20px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 20px -6px rgba(255, 92, 122, .6);
+    padding: 0;
+  }
+  .music-btn:hover { transform: scale(1.1); }
+
   .hint {
     margin-top: 26px;
     font-size: 14px;
@@ -171,6 +189,11 @@
 </style>
 </head>
 <body>
+
+  <button class="music-btn" id="musicBtn" title="Play / mute music" aria-label="Toggle music">🔇</button>
+
+  <!-- hidden online music player (YouTube) -->
+  <div id="player" style="position:fixed;width:1px;height:1px;left:-9999px;top:-9999px;" aria-hidden="true"></div>
 
   <div class="card" id="card">
 
@@ -350,6 +373,55 @@
   function partyHearts() {
     for (let i = 0; i < 40; i++) setTimeout(() => spawnHeart(true), i * 60);
   }
+
+  /* ===== Online background music (YouTube, no extra file) ===== */
+  // Change this ID to any YouTube song you like (the part after watch?v=)
+  const SONG_ID = "fy2QY9U3yE8";   // custom song
+  let ytPlayer = null, musicOn = false, musicReady = false;
+  const musicBtn = document.getElementById("musicBtn");
+
+  // load the YouTube IFrame API script
+  (function () {
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  })();
+
+  window.onYouTubeIframeAPIReady = function () {
+    ytPlayer = new YT.Player("player", {
+      videoId: SONG_ID,
+      playerVars: { autoplay: 0, loop: 1, playlist: SONG_ID, controls: 0 },
+      events: {
+        onReady: () => { musicReady = true; if (musicOn) ytPlayer.playVideo(); }
+      }
+    });
+  };
+
+  function startMusic() {
+    if (!musicReady || musicOn) return;
+    musicOn = true;
+    ytPlayer.unMute();
+    ytPlayer.playVideo();
+    musicBtn.textContent = "🎵";
+  }
+  function toggleMusic() {
+    if (!musicReady) { musicOn = true; musicBtn.textContent = "🎵"; return; }
+    if (musicOn) {
+      ytPlayer.pauseVideo();
+      musicOn = false;
+      musicBtn.textContent = "🔇";
+    } else {
+      ytPlayer.unMute();
+      ytPlayer.playVideo();
+      musicOn = true;
+      musicBtn.textContent = "🎵";
+    }
+  }
+
+  musicBtn.addEventListener("click", toggleMusic);
+  // start music on her very first interaction anywhere (satisfies autoplay rules)
+  document.addEventListener("click", startMusic, { once: true });
+  document.addEventListener("touchstart", startMusic, { once: true });
 </script>
 </body>
 </html>
