@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Forgive me? 💘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pink: #ff5c7a;
+    --pink-soft: #ffd6df;
+    --pink-bg: #fff0f3;
+    --ink: #3a2e35;
+    --grey: #eef0f4;
+    --grey-ink: #6b7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: "Poppins", system-ui, sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #ffe3ea 0%, transparent 60%),
+      linear-gradient(180deg, #fff5f7 0%, #ffeaf0 100%);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* floating hearts background */
+  .heart-bg {
+    position: fixed;
+    bottom: -40px;
+    font-size: 22px;
+    opacity: 0;
+    animation: float-up linear infinite;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+  @keyframes float-up {
+    0%   { transform: translateY(0) scale(.6) rotate(0deg); opacity: 0; }
+    10%  { opacity: .7; }
+    90%  { opacity: .5; }
+    100% { transform: translateY(-110vh) scale(1.1) rotate(40deg); opacity: 0; }
+  }
+
+  .card {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    width: 100%;
+    max-width: 560px;
+    border-radius: 28px;
+    padding: 56px 40px 40px;
+    text-align: center;
+    box-shadow: 0 30px 70px -30px rgba(255, 92, 122, .45),
+                0 10px 30px -15px rgba(0,0,0,.1);
+    animation: pop-in .6s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  @keyframes pop-in {
+    from { transform: scale(.85) translateY(20px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .face {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 26px;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 10px 20px rgba(123, 97, 255, .35));
+    animation: bob 3s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%     { transform: translateY(-10px) rotate(2deg); }
+  }
+  .face svg { width: 100%; height: 100%; }
+
+  h1 {
+    font-size: clamp(26px, 5vw, 34px);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 36px;
+  }
+  h1 .name { color: var(--pink); font-weight: 700; }
+
+  .buttons {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 64px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 16px 40px;
+    transition: transform .18s ease, box-shadow .18s ease, background .2s ease;
+  }
+
+  .yes {
+    background: var(--pink);
+    color: #fff;
+    box-shadow: 0 12px 26px -8px rgba(255, 92, 122, .7);
+  }
+  .yes:hover { transform: translateY(-2px) scale(1.06); }
+  .yes:active { transform: scale(.96); }
+
+  .no {
+    background: var(--grey);
+    color: var(--grey-ink);
+  }
+  .no:hover { background: #e5e7eb; }
+
+  .hint {
+    margin-top: 26px;
+    font-size: 14px;
+    color: #f6a6b6;
+    font-weight: 500;
+    min-height: 20px;
+    transition: opacity .3s ease;
+  }
+
+  /* ===== success screen ===== */
+  .success {
+    display: none;
+    animation: pop-in .5s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  .success.show { display: block; }
+  .card.won .ask { display: none; }
+
+  .success h1 { margin-bottom: 14px; }
+  .success p {
+    color: var(--grey-ink);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .success .big-emoji {
+    font-size: 72px;
+    display: block;
+    margin-bottom: 18px;
+    animation: bob 2s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card" id="card">
+
+    <!-- ===== Question ===== -->
+    <div class="ask" id="ask">
+      <div class="face" aria-hidden="true">
+        <!-- cute winking blueberry sending a kiss -->
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="g" cx="38%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#b4a6ff"/>
+              <stop offset="100%" stop-color="#8b7bf0"/>
+            </radialGradient>
+          </defs>
+          <!-- little hair sprout -->
+          <path d="M96 36 q4 -14 10 -4 q6 -12 11 0 q6 -10 9 2"
+                fill="none" stroke="#2b2440" stroke-width="4" stroke-linecap="round"/>
+          <!-- body -->
+          <circle cx="100" cy="110" r="62" fill="url(#g)" stroke="#2b2440" stroke-width="4.5"/>
+          <!-- wink eye (left) -->
+          <path d="M72 100 q10 -10 20 0" fill="none" stroke="#2b2440" stroke-width="5" stroke-linecap="round"/>
+          <!-- open eye (right) -->
+          <circle cx="124" cy="98" r="5.5" fill="#2b2440"/>
+          <!-- cheek blush -->
+          <ellipse cx="70" cy="120" rx="10" ry="6" fill="#ff9db0" opacity=".6"/>
+          <ellipse cx="134" cy="118" rx="10" ry="6" fill="#ff9db0" opacity=".6"/>
+          <!-- kissy mouth -->
+          <path d="M96 128 q10 -6 16 2 q-6 10 -16 4 z" fill="#ff5c7a" stroke="#2b2440" stroke-width="3"/>
+        </svg>
+      </div>
+
+      <h1><span class="name" id="name">Sudu</span>, Will u forgive me? 🥺</h1>
+
+      <div class="buttons">
+        <button class="yes" id="yes">Yes 💖</button>
+        <button class="no" id="no">No</button>
+      </div>
+
+      <p class="hint" id="hint">"No" seems a bit shy 💔</p>
+    </div>
+
+    <!-- ===== Success ===== -->
+    <div class="success" id="success">
+      <span class="big-emoji">🥰</span>
+      <h1>Yaaay! Thank you <span class="name" id="name2">Sudu</span> 💘</h1>
+      <p>I promise to be better, make you smile every day,<br>and never let you stay angry at me again.<br><br>I love you so much ❤️</p>
+    </div>
+
+  </div>
+
+<script>
+  // Personalise via URL: index.html?name=Supuni
+  const params = new URLSearchParams(location.search);
+  const who = params.get("name");
+  if (who) {
+    document.getElementById("name").textContent = who;
+    document.getElementById("name2").textContent = who;
+  }
+
+  const no   = document.getElementById("no");
+  const yes  = document.getElementById("yes");
+  const hint = document.getElementById("hint");
+  const card = document.getElementById("card");
+
+  // Growing yes + shrinking, fleeing No button
+  const noTexts = [
+    "No",
+    "Are you sure?",
+    "Really sure?",
+    "Really really sure?",
+    "Are you 100% sure?",
+    "Are you super duper sure?",
+    "Are you absolutely sure?",
+    "Are you positively sure?",
+    "Are you completely sure?",
+    "Are you totally sure?",
+    "Are you reaaally reaaally sure?",
+    "Are you 1000% sure?",
+    "Are you sure sure?",
+    "Pleaseee reconsider 🥺",
+    "Think about it again?",
+    "Think reaaally hard?",
+    "Are you certain certain?",
+    "Last chance to change...",
+    "Last last chance?",
+    "Okay... final answer?",
+    "Final final answer?",
+    "Are you suuuure sure sure?",
+    "Pretty please reconsider? 🥹",
+    "Still really sure? 😢",
+    "Reaaaally really really sure? 💔",
+    "No take-backs if you say No...",
+    "You can still change your mind 🥺",
+    "Are you fully 100% certain? 😭",
+    "Deep breath... are you sure? 😮‍💨",
+    "One more time — are you sure? 🥺",
+    "Positive? Absolutely positive?",
+    "Sure sure sure sure? 🥹",
+    "Last chance, I promise this time...",
+    "Okay but ARE you sure though? 👀",
+    "Just checking again... sure? 💕",
+    "Reconsider? For me? 🥺👉👈",
+    "You sure you're sure you're sure?",
+    "Pleeease say you're not sure 💔",
+    "Are you really truly honestly sure?",
+    "Hmm... are you SURE sure? 😏",
+    "Last chance (for real this time)",
+    "Okay okay... still sure? 🥺",
+    "I'll ask one more time... sure? 💞",
+    "Are you reaaaaaally sure?? 🥹",
+    "Pwease reconsider? 🥺👉👈"
+  ];
+  let noStep = 0;
+  let yesScale = 1;
+
+  function dodge() {
+    noStep++;
+
+    // Grow the Yes button each time (capped so it stays on screen)
+    yesScale = Math.min(2.2, yesScale + 0.18);
+    yes.style.transform = `scale(${yesScale})`;
+
+    // Change the plea text FIRST so every click advances the message
+    no.textContent = noTexts[Math.min(noStep, noTexts.length - 1)];
+
+    // Shrink the No button a little, but keep it comfortably clickable
+    const shrink = Math.max(0.6, 1 - noStep * 0.03);
+
+    // Give it a cute wiggle in place (stays reachable so she can keep clicking)
+    const wiggle = (noStep % 2 === 0) ? -6 : 6;
+    no.style.transform = `scale(${shrink}) rotate(${wiggle}deg)`;
+
+    const hints = [
+      '"No" seems a bit shy 💔',
+      "See? Yes is clearly the better choice 😌",
+      "The No button is running out of courage 🏃",
+      "It's getting tiny... just like the chance of a No 🤏",
+      "Just press Yes, you know you want to 💕",
+      "Keep clicking, it only gets cuter 🥰",
+      "Yes is getting HUGE for a reason 💖",
+      "You can run from No, but not from love 💘",
+      "Still here? That means you don't really wanna say No 😏",
+      "Okay you're persistent... but so is my love 💞"
+    ];
+    hint.textContent = hints[Math.min(noStep, hints.length - 1)];
+  }
+
+  // Advance one message per click/tap, so she can go through them all
+  no.addEventListener("click", dodge);
+  no.addEventListener("touchstart", (e) => { e.preventDefault(); dodge(); }, { passive: false });
+
+  yes.addEventListener("click", () => {
+    document.getElementById("ask").style.display = "none";
+    document.getElementById("success").classList.add("show");
+    card.classList.add("won");
+    partyHearts();
+  });
+
+  // Floating hearts background
+  function spawnHeart(burst) {
+    const h = document.createElement("div");
+    h.className = "heart-bg";
+    const emojis = ["💗","💖","💘","❤️","💕","🩷","💞"];
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + "vw";
+    const dur = 6 + Math.random() * 6;
+    h.style.animationDuration = dur + "s";
+    h.style.fontSize = (16 + Math.random() * 24) + "px";
+    if (burst) h.style.animationDuration = (2.5 + Math.random() * 2) + "s";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), dur * 1000 + 500);
+  }
+  setInterval(spawnHeart, 900);
+  spawnHeart();
+
+  function partyHearts() {
+    for (let i = 0; i < 40; i++) setTimeout(() => spawnHeart(true), i * 60);
+  }
+</script>
+</body>
+</html>
